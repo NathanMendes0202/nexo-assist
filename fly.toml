@@ -1,36 +1,40 @@
-# Deploy no Fly.io (veja o README). SQLite exige UMA máquina com volume persistente.
-app = "nexo-assist"
-primary_region = "gru"
+# fly.toml app configuration file generated for nexo-assist on 2026-10-29T02:45:35Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'nexo-assist'
+primary_region = 'gru'
 
 [build]
 
 [env]
-  NODE_ENV = "production"
-  NEXO_DB_PATH = "/data/nexo.db"
-  TICKETS_FAILURE_RATE = "0.03"
-  NEXO_DECIDER_MODEL = "google/gemini-3.8-flash"
-  NEXO_RESPONDER_MODEL = "google/gemini-3.8-flash"
-  # Segredos (GOOGLE_GENERATIVE_AI_API_KEY, SESSION_SECRET) NÃO ficam aqui: use `fly secrets set`.
+  NEXO_DB_PATH = '/data/nexo.db'
+  NEXO_DECIDER_MODEL = 'google/gemini-3.8-flash'
+  NEXO_RESPONDER_MODEL = 'google/gemini-3.8-flash'
+  NODE_ENV = 'production'
+  TICKETS_FAILURE_RATE = '0.03'
 
 [[mounts]]
-  source = "nexo_data"
-  destination = "/data"
+  source = 'nexo_data'
+  destination = '/data'
 
 [http_service]
-  internal_port = 3000
+  internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
 
   [[http_service.checks]]
-    method = "GET"
-    path = "/api/health"
-    interval = "30s"
-    timeout = "5s"
-    grace_period = "20s"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '20s'
+    method = 'GET'
+    path = '/api/health'
 
 [[vm]]
-  memory = "512mb"
-  cpu_kind = "shared"
+  memory = '512mb'
+  cpu_kind = 'shared'
   cpus = 1
+  memory_mb = 512
