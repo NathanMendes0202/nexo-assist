@@ -1,0 +1,9 @@
+node_modules
+.next
+data
+.env
+.env.*
+!.env.example
+.git
+evals/last-run.md
+*.zip

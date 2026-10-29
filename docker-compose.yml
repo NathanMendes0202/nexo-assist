@@ -1,0 +1,31 @@
+# Sobe o Nexo Assist completo:   docker compose up --build   ->   http://localhost:3000
+# A chave NÃO fica neste arquivo: o compose lê o arquivo .env (copie de .env.docker.example).
+services:
+  nexo-assist:
+    build: .
+    image: nexo-assist:latest
+    ports:
+      - "3000:3000"
+    environment:
+      # A chave do provedor entra aqui, vinda do .env (o entrypoint recusa subir sem ela).
+      GOOGLE_GENERATIVE_AI_API_KEY: ${GOOGLE_GENERATIVE_AI_API_KEY:-${GEMINI_API_KEY:-}}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      NEXO_DECIDER_MODEL: ${NEXO_DECIDER_MODEL:-google/gemini-3.8-flash}
+      NEXO_RESPONDER_MODEL: ${NEXO_RESPONDER_MODEL:-google/gemini-3.8-flash}
+      TICKETS_FAILURE_RATE: ${TICKETS_FAILURE_RATE:-0.03}
+      # Limites baixos para um ambiente de teste: o custo máximo por dia fica contido.
+      NEXO_USER_DAILY_MESSAGES: ${NEXO_USER_DAILY_MESSAGES:-40}
+      NEXO_GLOBAL_DAILY_MESSAGES: ${NEXO_GLOBAL_DAILY_MESSAGES:-300}
+    volumes:
+      - nexo-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  nexo-data:

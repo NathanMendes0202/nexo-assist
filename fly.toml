@@ -1,0 +1,36 @@
+# Deploy no Fly.io (veja o README). SQLite exige UMA máquina com volume persistente.
+app = "nexo-assist"
+primary_region = "gru"
+
+[build]
+
+[env]
+  NODE_ENV = "production"
+  NEXO_DB_PATH = "/data/nexo.db"
+  TICKETS_FAILURE_RATE = "0.03"
+  NEXO_DECIDER_MODEL = "google/gemini-3.8-flash"
+  NEXO_RESPONDER_MODEL = "google/gemini-3.8-flash"
+  # Segredos (GOOGLE_GENERATIVE_AI_API_KEY, SESSION_SECRET) NÃO ficam aqui: use `fly secrets set`.
+
+[[mounts]]
+  source = "nexo_data"
+  destination = "/data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[http_service.checks]]
+    method = "GET"
+    path = "/api/health"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
